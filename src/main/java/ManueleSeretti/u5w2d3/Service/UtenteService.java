@@ -4,24 +4,33 @@ import ManueleSeretti.u5w2d3.Entities.Utente;
 import ManueleSeretti.u5w2d3.Repository.UtenteRepository;
 import ManueleSeretti.u5w2d3.exceptions.BadRequestException;
 import ManueleSeretti.u5w2d3.exceptions.NotFoundException;
+import ManueleSeretti.u5w2d3.payloads.newUtenteDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+
 @Service
 public class UtenteService {
     @Autowired
     private UtenteRepository utenteRepository;
 
-    public Utente save(Utente body) {
-        utenteRepository.findByEmail(body.getEmail()).ifPresent(user -> {
+    public Utente save(newUtenteDTO body) throws IOException {
+        utenteRepository.findByEmail(body.email()).ifPresent(user -> {
             throw new BadRequestException("L'email " + user.getEmail() + " è già utilizzata!");
         });
-        body.setAvatar("http://ui-avatars.com/api/?name=" + body.getName() + "+" + body.getCognome());
 
-        return utenteRepository.save(body);
+        Utente u = new Utente();
+        u.setName(body.name());
+        u.setCognome(body.cognome());
+        u.setEmail(body.email());
+        u.setData(body.data());
+        u.setAvatar("http://ui-avatars.com/api/?name=" + u.getName() + "+" + u.getCognome());
+
+        return utenteRepository.save(u);
     }
 
     public Page<Utente> getUtente(int page, int size) {

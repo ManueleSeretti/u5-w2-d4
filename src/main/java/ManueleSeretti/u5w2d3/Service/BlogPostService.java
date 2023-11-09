@@ -3,22 +3,30 @@ package ManueleSeretti.u5w2d3.Service;
 import ManueleSeretti.u5w2d3.Entities.BlogPost;
 import ManueleSeretti.u5w2d3.Repository.PostRepository;
 import ManueleSeretti.u5w2d3.exceptions.NotFoundException;
+import ManueleSeretti.u5w2d3.payloads.newPostDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+
 @Service
 public class BlogPostService {
     @Autowired
     private PostRepository postRepository;
 
-    public BlogPost save(BlogPost body) {
+    public BlogPost save(newPostDTO body) throws IOException {
+        BlogPost b = new BlogPost();
+        b.setCategory(body.category());
+        b.setContenuto(body.contenuto());
+        b.setTempoLettura(body.tempoLettura());
+        b.setTitle(body.title());
+        b.setCover("https://picsum.photos/200/300");
+        b.setUtenteId(body.utente());
 
-        body.setCover("https://picsum.photos/200/300");
-
-        return postRepository.save(body);
+        return postRepository.save(b);
     }
 
     public Page<BlogPost> getPost(int page, int size) {

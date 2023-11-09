@@ -2,10 +2,16 @@ package ManueleSeretti.u5w2d3.Controller;
 
 import ManueleSeretti.u5w2d3.Entities.Utente;
 import ManueleSeretti.u5w2d3.Service.UtenteService;
+import ManueleSeretti.u5w2d3.exceptions.BadRequestException;
+import ManueleSeretti.u5w2d3.payloads.newUtenteDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/utenti")
@@ -21,8 +27,17 @@ public class UtenteController {
     // 2. POST http://localhost:3001/users (+ body)
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED) // <-- 201
-    public Utente saveUtente(@RequestBody Utente body) {
-        return usersService.save(body);
+    public Utente saveUtente(@RequestBody @Validated newUtenteDTO body, BindingResult validation) {
+        if (validation.hasErrors()) {
+            throw new BadRequestException(validation.getAllErrors());
+        } else {
+            try {
+                return usersService.save(body);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
     }
 
     // 3. GET http://localhost:3001/users/:id

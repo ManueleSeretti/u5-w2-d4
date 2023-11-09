@@ -2,10 +2,16 @@ package ManueleSeretti.u5w2d3.Controller;
 
 import ManueleSeretti.u5w2d3.Entities.BlogPost;
 import ManueleSeretti.u5w2d3.Service.BlogPostService;
+import ManueleSeretti.u5w2d3.exceptions.BadRequestException;
+import ManueleSeretti.u5w2d3.payloads.newPostDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/blogPosts")
@@ -22,8 +28,16 @@ public class BlogController {
     // 2. POST http://localhost:3001/post (+ body)
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED) // <-- 201
-    public BlogPost saveUtente(@RequestBody BlogPost body) {
-        return postService.save(body);
+    public BlogPost saveUtente(@RequestBody @Validated newPostDTO body, BindingResult validation) {
+        if (validation.hasErrors()) {
+            throw new BadRequestException(validation.getAllErrors());
+        } else {
+            try {
+                return postService.save(body);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     // 3. GET http://localhost:3001/post/:id
