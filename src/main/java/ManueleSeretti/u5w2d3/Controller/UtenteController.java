@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -55,7 +56,15 @@ public class UtenteController {
     // 5. DELETE http://localhost:3001/users/:id
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT) // <-- 204 NO CONTENT
-    public void findByIdAndDelete(@PathVariable int id) {
+    public void findByIdAndDelete(@PathVariable long id) {
         usersService.findByIdAndDelete(id);
+    }
+
+    @PostMapping("/upload/{id}")
+    public String uploadExample(@PathVariable long id, @RequestParam("avatar") MultipartFile body) throws IOException {
+        // il nome del parametro "avatar" deve corrispondere ESATTAMENTE al nome dell'attributo del FormData che si è concordato col frontend per allegare il file
+        System.out.println(body.getSize());
+        System.out.println(body.getContentType());
+        return usersService.uploadPicture(id, body);
     }
 }

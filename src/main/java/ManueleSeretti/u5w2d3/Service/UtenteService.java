@@ -5,11 +5,14 @@ import ManueleSeretti.u5w2d3.Repository.UtenteRepository;
 import ManueleSeretti.u5w2d3.exceptions.BadRequestException;
 import ManueleSeretti.u5w2d3.exceptions.NotFoundException;
 import ManueleSeretti.u5w2d3.payloads.newUtenteDTO;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -17,6 +20,9 @@ import java.io.IOException;
 public class UtenteService {
     @Autowired
     private UtenteRepository utenteRepository;
+
+    @Autowired
+    private Cloudinary cloudinary;
 
     public Utente save(newUtenteDTO body) throws IOException {
         utenteRepository.findByEmail(body.email()).ifPresent(user -> {
@@ -59,6 +65,14 @@ public class UtenteService {
 
         return utenteRepository.save(found);
 
+    }
+
+    public String uploadPicture(long id, MultipartFile file) throws IOException {
+        Utente u = this.findById(id);
+        String avatar = (String) cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap()).get("url");
+        u.setAvatar(avatar);
+        utenteRepository.save(u);
+        return avatar;
     }
 }
 
